@@ -3,52 +3,44 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 public class MySerialServer implements Server {
+	private int port;
+	private volatile boolean stop;
+	private Thread thread;
 
-    private volatile boolean stop = false;
-    private int port;
+	public MySerialServer(int port) {
+		this.stop = false;
+		this.port = port;
+	}
 
-    public MySerialServer(int port) {
-        this.port = port;
-    }
+	//Private Methods
+	private void runServer(ClientHandler c) {
+		try {
+		ServerSocket server = new ServerSocket(this.port); // Setting a socket for the server to listen on
+		server.setSoTimeout(3000); // Set timer to be 1 secound
+		while(!this.stop) {
+			try {
+				Socket aClient = server.accept();// Waiting for a client to connect for timeout period
+				try {
+					c.handleClient(aClient.getInputStream(), aClient.getOutputStream());
+					aClient.close();
+				} catch(IOException e) {} // Coudnt read from the client
+			}catch(Exception e) {} // timeOut reached without getting a clinet
+		}
+		server.close();
+		}catch (IOException e) {	}// Coudn't connect to a socket
+	}
 
-    private void open(int port, ClientHandler c, ServerSocket server) throws Exception {
-
-        while(!stop) {
-            try {
-                Socket client = server.accept();
-                try {
-                    c.handleClient(client.getInputStream(), client.getOutputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    client.close();
-                }
-            }
-            catch (SocketTimeoutException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void start(ClientHandler c) throws IOException {
-
-       new Thread(() -> {
-           ServerSocket server = null;
-           try {
-               server = new ServerSocket(port);
-               server.setSoTimeout(10000);
-               open(this.port, c, server);
-               server.close();
-
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
-       }
-       );
-    }
-    public void stop() {
-        this.stop = true;
-    }
+	//Override
+	@Override
+	public void start(ClientHandler c) {
+		this.thread = new Thread(()->runServer(c));
+		this.thread.start();
+	}
+	@Override
+	public void stop() {
+		stop = true; // Closing the server.
+		thread.interrupt();
+	}
 }

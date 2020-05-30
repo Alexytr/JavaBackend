@@ -3,19 +3,11 @@ package server;
 import java.io.*;
 
 public class MyTestClientHandler implements ClientHandler {
-	//Data
 	private Solver<String,String> solver;
 	private CacheManager<String,String> cm;
 
-	//Ctor
-
 	public MyTestClientHandler() {
-		this.solver = new Solver<String,String>() { //Create new solver which will reverse a given string
-			@Override
-			public String solve(String p) {
-				StringBuilder solution = new StringBuilder();
-				return solution.append(p).reverse().toString();
-			}};
+		this.solver = new StringReverser();
 		this.cm = new FileCacheManager();
 	}
 
