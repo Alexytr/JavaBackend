@@ -32,7 +32,7 @@ public class MySerialServer implements Server {
         }
     }
 
-    public void start(ClientHandler c) {
+    public void start(ClientHandler c) throws IOException {
 
        new Thread(() -> {
            ServerSocket server = null;
