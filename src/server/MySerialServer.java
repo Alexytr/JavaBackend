@@ -1,4 +1,4 @@
-package server_side;
+package server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,6 +8,11 @@ import java.net.SocketTimeoutException;
 public class MySerialServer implements Server {
 
     private volatile boolean stop = false;
+    private int port;
+
+    public MySerialServer(int port) {
+        this.port = port;
+    }
 
     private void open(int port, ClientHandler c, ServerSocket server) throws Exception {
 
@@ -27,14 +32,14 @@ public class MySerialServer implements Server {
         }
     }
 
-    public void start(int port, ClientHandler c) {
+    public void start(ClientHandler c) {
 
        new Thread(() -> {
            ServerSocket server = null;
            try {
                server = new ServerSocket(port);
                server.setSoTimeout(10000);
-               open(port, c, server);
+               open(this.port, c, server);
                server.close();
 
            } catch (Exception e) {

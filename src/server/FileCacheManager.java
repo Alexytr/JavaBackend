@@ -1,4 +1,4 @@
-package server_side;
+package server;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package server_side;
+package server;
 
 public interface CacheManager<ProblemT, SolutionT> {
 //    public Solution get_solution(Solver s);

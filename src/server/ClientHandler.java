@@ -1,4 +1,4 @@
-package server_side;
+package server;
 
 import java.io.IOException;
 import java.io.InputStream;

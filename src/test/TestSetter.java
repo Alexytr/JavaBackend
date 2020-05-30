@@ -1,6 +1,6 @@
 package test;
 
-import server_side.*;
+import server.*;
 
 public class TestSetter {
 	

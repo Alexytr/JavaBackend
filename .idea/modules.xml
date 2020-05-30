@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/PTM_projectTest.iml" filepath="$PROJECT_DIR$/PTM_projectTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/server_side/server_side.iml" filepath="$PROJECT_DIR$/src/server_side/server_side.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/server/server_side.iml" filepath="$PROJECT_DIR$/src/server/server_side.iml" />
     </modules>
   </component>
 </project>
