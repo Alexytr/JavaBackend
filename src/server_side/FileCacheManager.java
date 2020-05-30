@@ -1,20 +1,21 @@
 package server_side;
 
-public class FileCacheManager implements CacheManager {
-    public Solution get_solution(Solver s) {
-        // TODO: get existing solution to db
-        Solution solution = new Solution();
+import java.util.HashMap;
+import java.util.Map;
 
-        return solution;
+public class FileCacheManager<ProblemT, SolutionT> implements CacheManager<ProblemT, SolutionT> {
+    private Map<ProblemT, SolutionT> map;
+
+    public FileCacheManager() {
+        map = new HashMap<>();
     }
-    public void delete_solution(Solver s) {
-        // TODO: delete solver from db
+
+    @Override
+    public SolutionT solution_exists(ProblemT p) {
+        return map.get(p);
     }
-    public void add_solution(Solver s) {
-        // TODO: add new solution to db
-    }
-    public boolean solution_exists(Solver s) {
-        // TODO: check solution for the problem
-        return false;
+    @Override
+    public void add_solution(ProblemT p, SolutionT s) {
+        map.put(p, s);
     }
 }
