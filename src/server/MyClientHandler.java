@@ -12,38 +12,42 @@ import java.util.List;
 
 
 public class MyClientHandler implements ClientHandler {
-	//Data
-	private SearcherAdapter<Searchable<SPosition>,List<State<SPosition>>,SPosition> solver;
-	private CacheManager<FindGoalInMatrix,String> cm;
-	
-	//Ctor
+	private final SearcherAdapter<Searchable<SPosition>,List<State<SPosition>>,SPosition> solver;
+	private final CacheManager<FindGoalInMatrix,String> cacheManager;
+
 	public MyClientHandler() {
 		this.solver = new SearcherAdapter<>(new BestFirstSearch<SPosition>());
-		this.cm = new FileCacheManager<FindGoalInMatrix, String>();
+		this.cacheManager = new FileCacheManager<FindGoalInMatrix, String>();
 	}
-	
-	//Private Methods
+
 	private String createSolution(List<State<SPosition>> solverResult) {
 		StringBuilder solution = new StringBuilder();
-		State<SPosition> current , next;
-		int rowR , colR;
-		
+
 		for(int i = 0 ; i< solverResult.size()-1 ;i++) {
-			current = solverResult.get(i);
-			next = solverResult.get(i+1);
-			rowR = current.getsValue().getRow() - next.getsValue().getRow();
-			colR = current.getsValue().getCol()	- next.getsValue().getCol();
-			if(rowR == 1)//up
+			State<SPosition> current = solverResult.get(i);
+			State<SPosition> next = solverResult.get(i + 1);
+
+			int row = current.getsValue().getRow() - next.getsValue().getRow();
+			int column = current.getsValue().getCol() - next.getsValue().getCol();
+
+			if (row == 1){
 				solution.append("Up");
-			else if(rowR == -1)//down
+			}
+			else if (row == -1){
 				solution.append("Down");
-			else if(colR == 1)//left
+			}
+			else if (column == 1){
 				solution.append("Left");
-			else if(colR == -1)//right
+			}
+			else if (column == -1) {
 				solution.append("Right");
-			if(i+1 != solverResult.size() - 1)
+			}
+
+			if (i+1 != solverResult.size() - 1){
 				solution.append(",");
+			}
 		}
+
 		return solution.toString();
 	}
 	
@@ -53,42 +57,51 @@ public class MyClientHandler implements ClientHandler {
 		BufferedReader inFromAClient = new BufferedReader(new InputStreamReader(in));
 		PrintWriter outToAClient = new PrintWriter(out);
 		List<int[]> matrixCreator = new ArrayList<>();
+
+		GetFirstInformationFromClient(inFromAClient, matrixCreator); // get first info
+		SPosition start = GetInformationFromClient(inFromAClient); // get second info
+		SPosition goal = GetInformationFromClient(inFromAClient); // get third info
+
+		FindGoalInMatrix problem = new FindGoalInMatrix(matrixCreator, start, goal); // get the problem
 		
+    	String solution = Solve(problem); // solve
+
+		SendSolutionToClient(outToAClient, solution);
+		Close(inFromAClient, outToAClient);
+	}
+
+	private void GetFirstInformationFromClient(BufferedReader inFromAClient, List<int[]> matrixCreator) throws IOException {
 		String line;
-		//Getting the first wave of information from the client (The Matrix)
-		while(!(line = inFromAClient.readLine()).equals("end"))
+		while(!(line = inFromAClient.readLine()).equals("end")) {
 			matrixCreator.add(Arrays.asList(line.split(",")).stream().mapToInt(Integer::parseInt).toArray());
-		
-		//Getting the secound wave of information from the client (start position)
-		line = inFromAClient.readLine();
-		int[] startArray = Arrays.asList(line.split(",")).stream().mapToInt(Integer::parseInt).toArray();
-		SPosition start = new SPosition(startArray[0], startArray[1]);
-		
-		//Getting the third wave of information from the client (goal position)
+		}
+	}
+
+	private SPosition GetInformationFromClient(BufferedReader inFromAClient) throws IOException {
+		String line;
 		line = inFromAClient.readLine();
 		int[] goalArr = Arrays.asList(line.split(",")).stream().mapToInt(Integer::parseInt).toArray();
-		SPosition goal = new SPosition(goalArr[0],goalArr[1]);
-		
-		//Building the problem
-		FindGoalInMatrix problem = new FindGoalInMatrix(matrixCreator, start, goal);
-		
-    	//Solving if needed
-		String solution = this.cm.solution_exists(problem);
-		if(solution == null) { 
-			List<State<SPosition>> solverResult = this.solver.solve(problem);
-		    solution = createSolution(solverResult);
-		    cm.add_solution(problem, solution);
-		}
-				
-		//Sending the solution to the client
-		outToAClient.println(solution);
-		outToAClient.flush();
-		
-		//Close
+		return new SPosition(goalArr[0], goalArr[1]);
+	}
+
+	private void Close(BufferedReader inFromAClient, PrintWriter outToAClient) throws IOException {
 		inFromAClient.close();
 		outToAClient.close();
 	}
 
-	
+	private void SendSolutionToClient(PrintWriter outToAClient, String solution) {
+		outToAClient.println(solution);
+		outToAClient.flush();
+	}
 
+	private String Solve(FindGoalInMatrix problem) {
+		String solution = this.cacheManager.solution_exists(problem);
+		if (solution == null) {
+			List<State<SPosition>> solverResult = this.solver.solve(problem);
+		    solution = createSolution(solverResult);
+		    cacheManager.add_solution(problem, solution);
+		}
+
+		return solution;
+	}
 }

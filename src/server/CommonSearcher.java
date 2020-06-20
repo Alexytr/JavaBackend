@@ -6,39 +6,39 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 
 public abstract class CommonSearcher<T> implements Searcher<T> {
-	//Data
 	protected PriorityQueue<State<T>> minHeap;
 	private int numberOfNodes;
 	
-	//Ctor
 	public CommonSearcher() {
+
 		this.minHeap = new PriorityQueue<>((s1, s2) -> { return Integer.compare(s1.getsCost(), s2.getsCost());});
 		this.numberOfNodes = 0;
 	}
 	
-	//Protected methods
-	protected final State<T> pollFromHeap(){
+	protected final State<T> pollHeap(){
 		this.numberOfNodes++;
-		return this.minHeap.poll();
+		State<T> head = this.minHeap.poll();
+		return head;
 	}
 	
-	protected List<State<T>> backTrace(State<T> goal) {
-		Stack<State<T>> stack = new Stack<>();
+	protected List<State<T>> backTrace(State<T> g) {
+		Stack<State<T>> s = new Stack<>();
 		List<State<T>> sList = new ArrayList<>();
 		
-		while(goal.getFather() != null) { //Check if we reached start position
-			stack.push(goal);
-			goal = goal.getFather();
+		while(g.getFather() != null) { //Check if we reached start position
+			s.push(g);
+			g = g.getFather();
 		}
-		stack.push(goal);//Adding the start position
-		while(!stack.isEmpty())//while stack is not empty
-			sList.add(stack.pop());
-		
+		s.push(g);
+		while(!s.isEmpty())//while stack is not empty
+		{
+		    State<T> a = s.pop();
+			sList.add(a);
+		}
 		this.minHeap.clear();
 		return sList;
 	}
 	
-	//Override
 	@Override
 	public abstract List<State<T>> Search(Searchable<T> searchable);
 

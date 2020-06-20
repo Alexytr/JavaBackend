@@ -16,31 +16,38 @@ public class SPosition {
 		int result = 1;
 		result = prime * result + col;
 		result = prime * result + row;
+
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		return this.equals((SPosition)obj);
 	}
 	
-	public boolean equals(SPosition s) {
+	public boolean equals(SPosition s)
+	{
 		return (this.row == s.row && this.col == s.col) ? true : false;
 	}
 
-	public int getRow() {
+	public int getRow()
+	{
 		return row;
 	}
 
-	public void setRow(int row) {
+	public void setRow(int row)
+	{
 		this.row = row;
 	}
 
-	public int getCol() {
+	public int getCol()
+	{
 		return col;
 	}
 
-	public void setCol(int col) {
+	public void setCol(int col)
+	{
 		this.col = col;
 	}
 	
